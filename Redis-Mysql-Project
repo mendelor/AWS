@@ -1,0 +1,177 @@
+https://aws.amazon.com/getting-started/projects/boosting-mysql-database-performance-with-amazon-elasticache-for-redis/
+https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/nodes-connecting.html
+https://console.aws.amazon.com/support/cases?region=us-east-2#/6742133361/en
+https://console.aws.amazon.com/support/cases#/6751080111/en
+https://github.com/aws-samples/amazon-elasticache-samples/blob/master/database-caching/example.py
+https://stackoverflow.com/questions/31133050/virtualenv-command-not-found
+
+// yum update
+// sudo yum install git -y
+// sudo yum install mysql -y
+// sudo yum install python3 -y
+// pip3 install --user virtualenv
+// git clone https://github.com/aws-samples/amazon-elasticache-samples/
+// sudo /usr/bin/easy_install virtualenv
+// cd amazon-elasticache-samples/database-caching
+// virtualenv venv
+// source ./venv/bin/activate
+// vim example.py       changed TTL to 3600
+// wget https://files.pythonhosted.org/packages/ed/39/15045ae46f2a123019aa968dfcba0396c161c20f855f11dea6796bcaae95/PyMySQL-0.9.3-py2.py3-none-any.whl
+// wget https://files.pythonhosted.org/packages/ac/a7/cff10cc5f1180834a3ed564d148fb4329c989cbb1f2e196fc9a10fa07072/redis-3.2.1-py2.py3-none-any.whl
+// pip3 install -r requirements.txt
+
+Build Redis Cluster and Mysql Instance   (all the commands are in venv and using python3 - you don't need to run install redis on the instance)
+
+// mysql -h database-1.ctqkvcwhy2jz.us-east-2.rds.amazonaws.com -P 3306 -u admin -p < seed.sql
+
+syntax: python3
+>>> import redis
+>>> client = client = redis.Redis.from_url('redis://elc-tutorial.8bltoa.ng.0001.use2.cache.amazonaws.com:6379')
+>>> client.ping()
+Result: True
+
+
+export REDIS_URL=redis://elc-tutorial.8bltoa.ng.0001.use2.cache.amazonaws.com:6379/
+export DB_HOST=database-1.ctqkvcwhy2jz.us-east-2.rds.amazonaws.com
+export DB_USER=admin
+export DB_PASS=1d6ac2f01q
+export DB_NAME=tutorial
+
+// python3 example.py
+
+sudo yum install gcc              (Ubuntu - apt-get install -y gcc)
+gcc --version
+wget http://download.redis.io/redis-stable.tar.gz
+tar xvzf redis-stable.tar.gz
+cd redis-stable
+make distclean      // UBUNTU systems only
+make
+src/redis-cli -c -h elc-tutorial.8bltoa.ng.0001.use2.cache.amazonaws.com -p 6379    (make sure that sg for redis has port 6379 open)
+// "get" "SELECT * FROM planet"
+// "hgetall" planet:1
+// KEYS *.
+
+
+seed.sql:
+
+CREATE database tutorial;
+USE tutorial;
+CREATE TABLE planet (
+  id INT UNSIGNED AUTO_INCREMENT,
+  name VARCHAR(30),
+  PRIMARY KEY(id));
+INSERT INTO planet (name) VALUES ("Mercury");
+INSERT INTO planet (name) VALUES ("Venus");
+INSERT INTO planet (name) VALUES ("Earth");
+INSERT INTO planet (name) VALUES ("Mars");
+INSERT INTO planet (name) VALUES ("Jupiter");
+INSERT INTO planet (name) VALUES ("Saturn");
+INSERT INTO planet (name) VALUES ("Uranus");
+INSERT INTO planet (name) VALUES ("Neptune");
+
+-------------------------------------------------
+
+TTL set to 3600
+
+
+python3 example.py:
+
+import os
+import json
+
+import redis
+import pymysql
+
+
+class DB:
+    def __init__(self, **params):
+        params.setdefault("charset", "utf8mb4")
+        params.setdefault("cursorclass", pymysql.cursors.DictCursor)
+
+        self.mysql = pymysql.connect(**params)
+
+    def query(self, sql):
+        with self.mysql.cursor() as cursor:
+            cursor.execute(sql)
+            return cursor.fetchall()
+
+    def record(self, sql, values):
+        with self.mysql.cursor() as cursor:
+            cursor.execute(sql, values)
+            return cursor.fetchone()
+
+
+# Time to live for cached data
+TTL = 3600
+
+# Read the Redis credentials from the REDIS_URL environment variable.
+REDIS_URL = os.environ.get('REDIS_URL')
+
+# Read the DB credentials from the DB_* environment variables.
+DB_HOST = os.environ.get('DB_HOST')
+DB_USER = os.environ.get('DB_USER')
+DB_PASS = os.environ.get('DB_PASS')
+DB_NAME = os.environ.get('DB_NAME')
+
+# Initialize the database
+Database = DB(host=DB_HOST, user=DB_USER, password=DB_PASS, db=DB_NAME)
+
+# Initialize the cache
+Cache = redis.Redis.from_url(REDIS_URL)
+
+
+def fetch(sql):
+    """Retrieve records from the cache, or else from the database."""
+    res = Cache.get(sql)
+
+    if res:
+        return json.loads(res)
+
+    res = Database.query(sql)
+    Cache.setex(sql, TTL, json.dumps(res))
+    return res
+
+
+def planet(id):
+    """Retrieve a record from the cache, or else from the database."""
+    key = f"planet:{id}"
+    res = Cache.hgetall(key)
+
+    if res:
+        return res
+
+    sql = "SELECT `id`, `name` FROM `planet` WHERE `id`=%s"
+    res = Database.record(sql, (id,))
+
+    if res:
+        Cache.hmset(key, res)
+        Cache.expire(key, TTL)
+
+    return res
+
+
+# Display the result of some queries
+print(fetch("SELECT * FROM planet"))
+print(planet(1))
+print(planet(2))
+print(planet(3))
+
+--------------------------------------------------------------------
+
+
+
+
+
+
+******************
+******************
+******************
+******************
+sudo /venv/bin/activate virtualenv
+sudo /amazon-elasticache-samples/database-caching virtualenv
+https://stackoverflow.com/questions/31133050/virtualenv-command-not-found
+https://docs.python-guide.org/dev/virtualenvs/
+******************
+******************
+******************
+******************
