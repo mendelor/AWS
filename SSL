@@ -1,0 +1,2 @@
+SSL should always be created in US-EAST-1
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-viewercertificate.html#aws-properties-cloudfront-distribution-viewercertificate-properties
