@@ -73,6 +73,19 @@ and reboot the instance - it works!
 
 
 
+
+
+
+
+--create token---
+https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
+ghp_fUDRXsATMKQXtdFKfgdgfdgfdfdAXd2gfghfjeM29
+
+
+HOW TO GET COMMITID FROM GIT REPO (commandline):
+git ls-remote https://github.com/mendelor/mywebapp.git HEAD
+35c79b4caa88a13073f9ac6jhgghjgjhgjhghjghgh76716
+
 Troubleshooting:
 https://support.cloudbees.com/hc/en-us/articles/224621648-GitHub-Webhook-Troubleshooting?mobile_site=true
 http://18.224.***.172/:8080/github-webhook/
