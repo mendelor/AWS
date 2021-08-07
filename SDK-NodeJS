@@ -1,8 +1,10 @@
 AWS SDK for Node:
-
+(installation:  https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/getting-started-nodejs.html)
 
 /> npm install aws-sdk
 create a user and attach a DynamoDB full access role
+
+/> npm install uuid
 
 /> aws configure
 
@@ -58,10 +60,10 @@ ddb.createTable(params, function(err, data) {
   }
 });
 
-
-
 /> node ddb_createtable.js
 
-Go to AWS dashboard to see the output
+https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/js-sdk-dg.pdf                              ((( SDK Developer Guide )))
+
+
 
 https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/dynamodb-examples-using-tables.html
