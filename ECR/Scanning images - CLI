@@ -1,0 +1,6 @@
+In this example, I will list scan findings for "sample-repo" repository and image with tag latest (nginx:latest)
+
+/> aws ecr describe-image-scan-findings --repository-name sample-repo --image-id imageTag=latest
+
+
+https://docs.aws.amazon.com/cli/latest/reference/ecr/describe-image-scan-findings.html
