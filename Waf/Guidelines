@@ -1,5 +1,6 @@
-
-we recommend deploying AWS WAF with Amazon CloudFront for the best
-security posture, unless you have constraints that require otherwise  (page 9)
+Amazon CloudFront,
+Amazon API Gateway, and Application Load Balancer. For all public facing web
+applications, we recommend deploying AWS WAF with Amazon CloudFront for the best
+security posture, unless you have constraints that require otherwise.  (page 9)
 
 https://d1.awsstatic.com/whitepapers/guidelines-implementing-aws-waf.pdf
