@@ -4,9 +4,10 @@ AWS SDK for Node:
 /> npm install aws-sdk
 create a user and attach a DynamoDB full access role
 
-/> vim ddb_createtable.js
-https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/dynamodb-examples-using-tables.html
+/> aws configure
 
+
+/> vim ddb_createtable.js
 
 
 // Load the AWS SDK for Node.js
@@ -63,6 +64,4 @@ ddb.createTable(params, function(err, data) {
 
 Go to AWS dashboard to see the output
 
-
-=> I've tried this tutorial but it got stuck in the middle 
-https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.NodeJs.01.html
+https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/dynamodb-examples-using-tables.html
