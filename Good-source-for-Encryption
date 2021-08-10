@@ -3,4 +3,10 @@ https://github.com/PaulDuvall/aws-encryption-workshop
 Orielly - devsecops course
 
 
-KMS- once you deleted the key it is no longer functional by no one even if it's still in a deletion mode
+** KMS- once you deleted the key it is no longer functional by no one even if it's still in a deletion mode
+
+
+https://github.com/paulduvall/aws-encryption-workshop/wiki/3.1
+Tutorial for encrypt and decrypt data using KMS (cloud9 was the environment)
+https://learning.oreilly.com/videos/continuous-compliance-encryption/9780137628070/9780137628070-cena_01_03_01_00/
+
