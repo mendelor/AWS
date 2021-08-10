@@ -10,3 +10,6 @@ https://github.com/paulduvall/aws-encryption-workshop/wiki/3.1
 Tutorial for encrypt and decrypt data using KMS (cloud9 was the environment)
 https://learning.oreilly.com/videos/continuous-compliance-encryption/9780137628070/9780137628070-cena_01_03_01_00/
 
+
+Roatation db password using cloudformation and lambda
+https://github.com/PaulDuvall/aws-encryption-workshop/blob/master/lesson3-develop/ceoa-3-rotation-4-rds.yml
