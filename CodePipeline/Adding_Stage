@@ -1,0 +1,16 @@
+You can add another stage to your CodePipeline by editing[1] it after it is created using the Edit button on top of that specific pipeline page, On the edit page you can use "+ add stage" buttons shown between stages and on the end, then enter a name (test) for your new stage, A stage is simply a collection of actions.
+
+In your new stage you need to define at least one action[2] which can range from a manual approval with optional SNS notification to many other supported action providers such as a CodeBuild or Lambda trigger action.
+
+If you'd like to learn more about what actions, stages and other CodePipeline concepts you can take a look here [3].
+
+I hope this information proves to be useful and helps you to do the required modifications to your CodePipeline. Let me know if you have any additional queries and I would be happy to address them all.
+
+Have a great day.
+
+References:
+[1] Edit a pipeline in CodePipeline - Edit a pipeline (console) - https://docs.aws.amazon.com/codepipeline/latest/userguide/pipelines-edit.html#pipelines-edit-console 
+
+[2] Working with actions in CodePipeline - https://docs.aws.amazon.com/codepipeline/latest/userguide/actions.html 
+
+[3] CodePipeline concepts - https://docs.aws.amazon.com/codepipeline/latest/userguide/concepts.html 
