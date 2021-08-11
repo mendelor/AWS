@@ -1,3 +1,46 @@
 Create a UNION iam role for all your pipelines 
 
+
+-----Role A-----
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ecs:*",
+      "Resource": "*"
+    }
+  ]
+}
+-----------------
+
+
+-----Role B-----
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "cloudformation:*",
+      "Resource": "*"
+    }
+  ]
+}
+-----------------
+
+-----Role A UNION Role B-----
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecs:*",
+        "cloudformation:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+
 https://console.aws.amazon.com/support/home#/case/?displayId=8637405341&language=en
