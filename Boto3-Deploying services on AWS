@@ -722,3 +722,36 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('staff')
 
 table.delete()
+
+
+
+
+
+
+
+======================================Lambda-----------------
+Serverless Application Repository:
+https://www.youtube.com/watch?v=mKPUXTyjfHA
+https://www.nexmo.com/blog/2020/06/15/automated-message-migration-from-aws-sqs-to-dynamodb
+https://github.com/nexmo-community/messaging-aws-sqs-dynamodb-php
+
+
+Create lambda function
+add role to Lambda: AmazonEC2FullAccess
+Run this script:
+
+import boto3
+ec2 = boto3.resource('ec2')
+instances = ec2.create_instances(
+     ImageId='ami-0cc96feef8c6bbff3',
+     MinCount=1,
+     MaxCount=1,
+     InstanceType='t2.micro',
+     KeyName='Ansible'
+ )
+
+ import boto3
+ ssm = boto3.client('ssm' )
+ testCommand = ssm.send_command( InstanceIds=[ 'mi-0f02a007835aa4dc0' ],
+ DocumentName='AWS-RunShellScript',
+ Comment='boto3', Parameters={ "commands":[ "systemctl stop httpd" ]  } )
