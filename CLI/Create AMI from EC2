@@ -1,0 +1,1 @@
+aws ec2 create-image  --instance-id i-0c09beadasda   --name "My server"  --description "An AMI for my server"
