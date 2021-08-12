@@ -1,0 +1,86 @@
+************** Explanations about Python on EC2 at the bottom (from AWS Support)****************
+Book/video
+oreilly,
+Fluent Python and Python Fundamentals
+
+
+codes:
+https://github.com/ACloudGuru/automating-aws-with-python
+
+alias python=python3.7
+
+/> python3 --version
+
+
+In order to permanently change the Python version run the following:
+
+/> echo "alias python=python3" >> ~/.bash_aliases
+/> echo "if [ -f ~/.bash_aliases ]; then
+. ~/.bash_aliases
+fi" >> ~/.bashrc
+source ~/.bash_aliases
+
+
+https://console.aws.amazon.com/support/home#/case/?displayId=8193779301&language=en
+
+
+--------------------------------------------------------------------------------
+
+https://www.geeksforgeeks.org/python-issubclass/
+
+class Vehicles:
+
+    # Constructor
+    def __init__(vehicleType):
+        print('Vehicles is a ', vehicleType)
+
+# Defining Child class
+class Car(Vehicles):
+
+    # Constructor
+    def __init__(self):
+        Vehicles.__init__('Car')
+
+# Driver's code
+print(issubclass(Car, Vehicles))
+print(issubclass(Car, list))
+print(issubclass(Car, Car))
+print(issubclass(Car, (list, Vehicles)))
+
+----------------------------------Answer from AWS support about python versions:
+
+I. Why do we have two python versions in ubuntu AMI:
+   The python/python2 command come from a package named "python2" and python3 come from "python3",
+   The packages are different for python2 and python3.
+
+   I suspect that the Ubuntu AMI had both packages installed when it was created. Certain applications
+   work better with a specific version of python hence there can be two different versions of it.
+
+II. How can the default python version be changed to python3:
+a. There are two ways for doing this, one way is using "update-alternatives" command.
+    # update-alternatives --install /usr/bin/python3 python /usr/bin/python3.7
+
+   The above command creates a symlink of python -> /usr/bin/python3.8 in /etc/alternatives.
+
+b. Another way of setting default to python 3.7 is using alias, edit
+   the ~/.bashrc file and add the below entry at the end of the file.
+    # alias python=python3.7
+
+c. After following one of the above methods a or b, check python version
+    # python --version
+
+III. Python upgrade commands:
+a. Upgrade using command line.
+    # apt-get upgrade python3
+
+b. Using user data script.
+  Select Launch instances
+    Step 1: Select the AMI
+    Step 2: Choose Instance Type
+    Step 3: Configure Instance Details
+            Drop down "Advanced Details" at the bottom of the page and add below script in User data with "As text" radio button selected.
+            ~~~
+            #!/bin/bash
+            # Updating the python package on Ubuntu
+
+            sudo apt-get upgrade python3 -y
