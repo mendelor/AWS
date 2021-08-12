@@ -1,0 +1,51 @@
+AWS:
+
+create an EC2 instance    ami-0443305dabd4be2bc
+AppName - mywebapp
+
+
+Linux2
+--------
+#!/bin/bash
+yum update -y
+yum install ruby -y
+yum install wget -y
+cd /home/ec2-user
+wget https://aws-codedeploy-us-east-2.s3.amazonaws.com/latest/install
+chmod +x ./install
+./install auto
+
+/> service codedeploy-agent status           
+The AWS CodeDeploy agent is running as PID 3306
+
+
+CodeDeploy: 
+Application name: mywebapp
+Compute platform: EC2/On-premises
+
+Amazon EC2 instances
+1 unique matched instance. Click here for details
+
+Matching instances:
+1 unique matched instance. Click here for details
+
+Enter a service role: 
+AWSCodeDeployRole (inside this role 4 Policies)  => AWSCodeDeployRoleForECS, AWSCodeDeployRole, AmazonECS_FullAccess 
+and S3 policy:
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "s3:Get*",
+                "s3:List*"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ]
+}
+
+
+After run => yum install -y httpd
+and reboot the instance - it works! 
