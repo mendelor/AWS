@@ -432,3 +432,293 @@ Install SSMAgent on ec2-ubuntu
     https://www.youtube.com/watch?v=aR02m1Xsz1E
     https://www.youtube.com/watch?v=1r3YU2KoK5s
 ------------------------------------------------
+
+
+
+
+
+
+
+**************************************DynamoDB + Boto3***************************************************
+
+https://sysadmins.co.za/interfacing-amazon-dynamodb-with-python-using-boto3/
+
+
+
+#!/bin/bash
+yum update -y
+sudo yum install python3 -y
+curl -O https://bootstrap.pypa.io/get-pip.py
+python3 get-pip.py --user
+pip3 install virtualenv
+/usr/local/bin/virtualenv venv
+source /venv/bin/activate
+sudo pip3 install boto3
+sudo pip3 install sagemaker
+sudo pip3 install seaborn
+
+// pip3 freeze   (to identify the modules of pip3 )
+
+--------------------------------------------------------------------------------
+CREATE TABLE:
+
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+
+table = dynamodb.create_table(
+    TableName='staff',
+    KeySchema=[
+        {
+            'AttributeName': 'username',
+            'KeyType': 'HASH'
+        },
+        {
+            'AttributeName': 'last_name',
+            'KeyType': 'RANGE'
+        }
+    ],
+    AttributeDefinitions=[
+        {
+            'AttributeName': 'username',
+            'AttributeType': 'S'
+        },
+        {
+            'AttributeName': 'last_name',
+            'AttributeType': 'S'
+        },
+    ],
+    ProvisionedThroughput={
+        'ReadCapacityUnits': 1,
+        'WriteCapacityUnits': 1
+    }
+)
+
+table.meta.client.get_waiter('table_exists').wait(TableName='staff')
+print(table.item_count)
+--------------------------------------------------------------------------------
+Writing to DynamoDB (PUT Item):
+
+
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('staff')
+
+table.put_item(
+   Item={
+        'username': 'ruanb',
+        'first_name': 'ruan',
+        'last_name': 'bekker',
+        'age': 30,
+        'account_type': 'administrator',
+    }
+)
+--------------------------------------------------------------------------------
+Reading from DynamoDB (GET Item):
+
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('staff')
+
+response = table.get_item(
+   Key={
+        'username': 'ruanb',
+        'last_name': 'bekker'
+    }
+)
+
+item = response['Item']
+name = item['first_name']
+
+print(item)
+print("Hello, {}" .format(name))
+--------------------------------------------------------------------------------
+Updating Items:
+
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('staff')
+
+table.update_item(
+    Key={
+        'username': 'ruanb',
+        'last_name': 'bekker'
+    },
+    UpdateExpression='SET age = :val1',
+    ExpressionAttributeValues={
+        ':val1': 29
+    }
+)
+--------------------------------------------------------------------------------
+Deleting an Item:
+
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('staff')
+
+table.delete_item(
+    Key={
+        'username': 'ruanb',
+        'last_name': 'bekker'
+    }
+)
+--------------------------------------------------------------------------------
+Batch Write Item:
+
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('staff')
+
+with table.batch_writer() as batch:
+    batch.put_item(
+        Item={
+            'account_type': 'standard_user',
+            'username': 'stefanb',
+            'first_name': 'stefan',
+            'last_name': 'bester',
+            'age': 30,
+            'address': {
+                'road': '1 jamesville street',
+                'city': 'kroonstad',
+                'province': 'free state',
+                'country': 'south africa'
+            }
+        }
+    )
+    batch.put_item(
+        Item={
+            'account_type': 'administrator',
+            'username': 'ruanb',
+            'first_name': 'ruan',
+            'last_name': 'bekker',
+            'age': 30,
+            'address': {
+                'road': '10 peterville street',
+                'city': 'cape town',
+                'province': 'western cape',
+                'country': 'south africa'
+            }
+        }
+    )
+    batch.put_item(
+        Item={
+            'account_type': 'standard_user',
+            'username': 'samanthas',
+            'first_name': 'samantha',
+            'last_name': 'smith',
+            'age': 28,
+            'address': {
+                'road': '12 newton street',
+                'city': 'port elizabeth'
+                'province': 'eastern cape',
+                'country': 'south africa'
+            }
+        }
+    )
+--------------------------------------------------------------------------------
+To Create 50 items from a for loop:
+
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('staff')
+
+with table.batch_writer() as batch:
+    for i in range(50):
+        batch.put_item(
+            Item={
+                'account_type': 'anonymous',
+                'username': 'user' + str(i),
+                'first_name': 'unknown',
+                'last_name': 'unknown'
+            }
+        )
+--------------------------------------------------------------------------------
+Query:
+
+With Query you can query on the Hash/Range key, but not on non key attributes.
+
+
+import boto3
+from boto3.dynamodb.conditions import Key, Attr
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('staff')
+
+response = table.query(
+    KeyConditionExpression=Key('username').eq('samanthas') & Key('last_name').eq('smith')
+)
+
+items = response['Items']
+print(items)
+--------------------------------------------------------------------------------
+Creating a Global Secondary Index:
+
+ddb=boto3.Session(region_name='eu-west-1').client('dynamodb')
+ddb.update_table(
+    AttributeDefinitions=[{'AttributeName': 'username', 'AttributeType': 'S'}, {'AttributeName': 'lastname', 'AttributeType': 'S'}, {'AttributeName': 'age', 'AttributeType': 'N'}],
+    TableName='staff',
+    GlobalSecondaryIndexUpdates=[{'Create': {'IndexName': 'staffindex', 'KeySchema': [{'AttributeName': 'username', 'KeyType': 'HASH'}, {'AttributeName': 'age', 'KeyType': 'RANGE'}],
+    'Projection': {'ProjectionType': 'ALL'}, 'ProvisionedThroughput': {'ReadCapacityUnits': 1, 'WriteCapacityUnits': 1}}}]
+)
+--------------------------------------------------------------------------------
+Now that we have our GSI created, we can query from our Index:
+
+table.query(
+    IndexName='staffindex',
+    KeyConditionExpression=Key('username').eq('petera') & Key('age').gt(10)
+)
+--------------------------------------------------------------------------------
+Using Query with a FilterExpression which will be a scan on the returned data from the query:
+
+table.query(
+    IndexName='staffindex',
+    KeyConditionExpression=Key('username').eq('petera') & Key('age').gt(10),
+    FilterExpression=Attr('account_type').eq('administrator')
+)
+--------------------------------------------------------------------------------
+Scan:
+
+With scan you can scan the table based on attributes of the items, for example getting users older than 29. In other terms querying on attributes which is not part of our Primary Keys
+
+import boto3
+from boto3.dynamodb.conditions import Key, Attr
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('staff')
+
+response = table.scan(
+    FilterExpression=Attr('age').gt(29)
+)
+
+items = response['Items']
+print(items)
+--------------------------------------------------------------------------------
+Lets say we would like to get all items who's Names starts with 'r' and account type is 'administrators':
+
+import boto3
+from boto3.dynamodb.conditions import Key, Attr
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('staff')
+
+response = table.scan(
+    FilterExpression=Attr('first_name').begins_with('r') & Attr('account_type').eq('administrator')
+)
+
+items = response['Items']
+print(items)
+--------------------------------------------------------------------------------
+Deleting the Table:
+
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('staff')
+
+table.delete()
