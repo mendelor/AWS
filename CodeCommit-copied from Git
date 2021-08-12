@@ -1,0 +1,46 @@
+How to copy Git repo to AWS CodeCommit:
+
+** I ran these commands without Administrator role on the EC2.
+
+********************************************************************************
+To delete a file after clonning from codecommit:
+https://www.howtoforge.com/how-to-create-and-use-a-codecommit-repository-on-aws/
+********************************************************************************
+
+FOLLOW THIS TUTORIAL:  **
+<https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-gc.html>
+
+1. Navigate to the [IAM Console](https://console.aws.amazon.com/iam/ ).
+2. Select the user you would like to authenticate as.
+3. Scroll down to `HTTPS Git credentials for AWS CodeCommit` and click `Generate credentials`
+4. Copy username and password for steps below.
+5. Create a CodeCommit repository
+
+To copy your GitHub repository to CodeCommit
+
+git clone https://github.com/mendelor/mywebapp.git
+cd mywebapp
+git remote add codecommit https://git-codecommit.us-east-2.amazonaws.com/v1/repos/GIT
+git push codecommit master    (then it would ask username and password)
+serverless-at-025533341131
+B2BHr3GV0ubctfgCeHc062xY60v89XcrB7Upct+XaqD4=
+--------------
+
+THIS COMMAND WORKS!!!!  after following the tutorial  **
+
+git clone https://git-codecommit.ap-southeast-2.amazonaws.com/v1/repos/dev-test_repo
+
+git remote add codecommit https://git-codecommit.ap-southeast-2.amazonaws.com/v1/repos/dev-test_repo
+git remote add codecommit https://git-codecommit.us-east-2.amazonaws.com/v1/repos/laravel-project
+git push codecommit dev                 -------            (check the branch you're using  =>   /> git branch)
+
+
+*******************
+User Name,Password
+Mendel-at-31203324342452507,RZDyk4TKaredadeyKidv/msM06ZdaszXGfutwfgqfsikpCPoUi4FiA=
+*******************
+
+
+
+To change the default branch, run the following command:
+/> aws codecommit update-default-branch --repository-name dev-test_repo --default-branch-name dev --region ap-southeast-2
