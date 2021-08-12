@@ -1,0 +1,125 @@
+https://console.aws.amazon.com/support/home?region=us-east-2#/case/?displayId=7249238901&language=en
+
+
+**** tool or code that you can use to test if your WAF is working as expected
+Look for Postman
+
+
+
+Hi,
+
+Thank you for contacting AWS Premium Support. My name is Chiedu and I am happy to assist you with this case today.
+
+I understand that you have certain questions and need for guidance around the use of AWS WAF.
+
+I appreciate you providing all the necessary details to look into this.
+
+About this case:
+
+1) Concern:
+
+- Is it fine to use an ALB with HTTPS listener with a WAF ACL integrated with it
+- Do we have a WAF Cloudformation template that can deploy WAF together with ALB or Cloudfront
+- Do we have a tutorial for AWS Shield
+- Is there a tool or code that you can use to test if your WAF is working as expected
+- You have console display issue from WAF Dashboard in us-east-2 where if you deploy WAF via Cloudformation you can only view the WAF using the old dashboard
+- You got a 403 forbidden code from Cloudfront even after you removed the WAF that was integrated with it earlier and you want to know the reason why
+
+2) Architecture:
+
+Client < -----  waf | ---> ALB < -------------- > Targets
+Client < -----  waf | ---> Cloudfront < ------ > Origin
+
+3) Troubleshooting/Resolution:
+
+a) Is it fine to use an ALB with HTTPS listener with a WAF ACL integrated with it
+
+This is perfectly fine and valid, this is also the most secure usage or architecture to implement, because you are security your application at 2 layers:
+
+- HTTPS layer : by encrypting traffic using the negotiated keys via https traffic between your client and ALB is encrypted.
+- Application layer: by using WAF you are ensuring that there is inspection of the contents of the http payload and that it is not malicious.
+
+To implement HTTPS on your ALB you can follow this guide: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html
+To attach a WAF ACL to the ALB you can follow this guide:     https://docs.aws.amazon.com/waf/latest/developerguide/web-acl-associating-aws-resource.html
+
+b) Do we have a WAF Cloudformation template that can deploy WAF together with ALB or Cloudfront
+
+Yes, AWS has a WAF Security Automation solution that is built to address this:
+
+https://aws.amazon.com/solutions/implementations/aws-waf-security-automations/
+https://docs.aws.amazon.com/solutions/latest/aws-waf3-security-automations/welcome.html
+
+With this solution you can automate the rollout of your WAF + ALB solution or WAF + Cloudfront solution using the attached cloudformation template and enable WAF capabilities and features that you might want.
+
+c) Do we have a tutorial for AWS Shield
+
+Yes we do.
+I'm attaching here a Youtube video that provides a very good explanation of  AWS WAF and Shield and then does a demo tutorial as to the configuration of Shield, i added the time the demo begins in the link in case you want to skip ahead -> https://www.youtube.com/watch?v=HnoZS5jj7pk&t=1920
+
+
+
+
+
+
+d) Is there a tool or code that you can use to test if your WAF is working as expected
+
+ There's numerous tools you can use to test your knowledge or test your WAF environment to confirm if it is working as intended, below are the ones i'm aware of (this is not an exhuastive list however), also please note that all tools are 3rd party and not AWS maintained:
+
+- Postman:
+
+https://www.postman.com/
+https://learning.postman.com/docs/getting-started/introduction/
+
+- Web Browser Dev Tools:
+
+Chrome: https://developers.google.com/web/tools/chrome-devtools/network
+Firefox: https://developer.mozilla.org/en-US/docs/Tools/Network_Monitor
+
+- Curl:
+https://curl.haxx.se/docs/manpage.html
+https://flaviocopes.com/http-curl/
+
+- Apache Benchmark:
+
+http://httpd.apache.org/docs/2.2/en/programs/ab.html
+https://developer.okta.com/blog/2019/10/15/performance-testing-with-apache-bench
+
+
+- https://github.com/fabiantan/EdgeServicesWorkshop/blob/master/EdgeServicesWorkshop.md
+
+This links to a workshop that uses practical implementation of WAF + Cloudfront + ALB to show the effectiveness and usage of WAF deployed to proactively block attacks based on Top 10 OWASP Web Vulnerabilities rules eg. SQL Injection, XSS scripting.
+
+
+e) You have console display issue from WAF Dashboard in us-east-2 where if you deploy WAF via Cloudformation you can only view the WAF using the old dashboard
+
+- I am not aware of any console display problem that behaves like this, perhaps you can try the below if this happens:
+
+i)  Deploy the solution using a different web browser and attempt to view WAF from this browser
+ii) Deploy the solution using the same browser but in private browsing/incognito mode
+
+If both i) and ii) still fails and you have to use the old dashboard to view your configuration then please can you provide a screenshot of the said problem, the screenshot should show that you cannot view your WAF on the current dashboard, and also show that you can view your WAF on the new dashboard.
+
+Based on the supplied i would see if i can detect the problem and if not i would escalate it on your behalf.
+
+f) You got a 403 forbidden code from Cloudfront even after you removed the WAF that was integrated with it earlier and you want to know the reason why
+
+Cloudfront domain name: http://d1oxegf3dk5oqr.cloudfront.net/
+Request ID: un2eJkjybqS1D_Lz4kfoNar1muJet5Bcia65qVUNT3aBP6bd96NurA==
+You got blocked even though you had removed the WAF ACL attached to the Cloudfront distribution.
+
+- Thanks for providing the WAF Request ID, i took the ID and searched internally and i can see that for that request you were 'ClientGeoBlocked' i.e your distribution was configured to refuse requests from that geographic location.
+
+This means that Cloudfront was blocking your traffic using geo location/geo blocking - to prevent that client because it was from a specific location that you had configured to be denied.
+
+Please note that this was Cloudfront blocking the request based on your geo location configuration and not WAF blocking the request.
+
+More information here :
+https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/georestrictions.html
+https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessLogs.html#BasicDistributionFileFormat
+
+I did a dig for your distribution and can see that you have deleted it:
+
+$ dig d1oxegf3dk5oqr.cloudfront.net  | grep ANSWER
+;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+If you run into this issue again please edit your Geo restriction settings in Cloudfront.
