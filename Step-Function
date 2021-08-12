@@ -1,0 +1,471 @@
+https://github.com/awsdocs/aws-step-functions-developer-guide/blob/master/doc_source/sample-project-transfer-data-sqs.md
+
+https://github.com/awsdocs
+https://github.com/awsdocs
+
+
+<SQS to DynamoDB with Step-Function  ++++++ Cloudformation that creates everything!!!!!!!!!!!!!!!!   >
+
+https://docs.aws.amazon.com/step-functions/latest/dg/sample-project-transfer-data-sqs.html
+https://docs.aws.amazon.com/step-functions/latest/dg/sample-project-transfer-data-sqs.html
+
+
+create state machine => Run sample project => Transfer Data Records =>
+
+
+--------------------------------------------------------------------------------
+{
+  "Comment" : "An example of the Amazon States Language for reading messages from a DynamoDB table and sending them to SQS",
+  "StartAt": "Seed the DynamoDB Table",
+  "TimeoutSeconds": 3600,
+  "States": {
+    "Seed the DynamoDB Table": {
+      "Type": "Task",
+      "Resource": "<SEEDING_LAMBDA_FUNCTION_ARN>",
+      "ResultPath": "$.List",
+      "Next": "For Loop Condition"
+    },
+    "For Loop Condition": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Not": {
+            "Variable": "$.List[0]",
+            "StringEquals": "DONE"
+          },
+          "Next": "Read Next Message from DynamoDB"
+        }
+      ],
+      "Default": "Succeed"
+    },
+    "Read Next Message from DynamoDB": {
+      "Type": "Task",
+      "Resource": "arn:<PARTITION>:states:::dynamodb:getItem",
+      "Parameters": {
+        "TableName": "<DYNAMO_DB_TABLE_NAME>",
+        "Key": {
+          "MessageId": {"S.$": "$.List[0]"}
+        }
+      },
+      "ResultPath": "$.DynamoDB",
+      "Next": "Send Message to SQS"
+    },
+    "Send Message to SQS": {
+      "Type": "Task",
+      "Resource": "arn:<PARTITION>:states:::sqs:sendMessage",
+      "Parameters": {
+        "MessageBody.$": "$.DynamoDB.Item.Message.S",
+        "QueueUrl": "<SQS_QUEUE_URL>"
+      },
+      "ResultPath": "$.SQS",
+      "Next": "Pop Element from List"
+    },
+    "Pop Element from List": {
+      "Type": "Pass",
+      "Parameters": {
+        "List.$": "$.List[1:]"
+      },
+      "Next": "For Loop Condition"
+    },
+    "Succeed": {
+      "Type": "Succeed"
+    }
+  }
+}
+
+--------------------------------------------------------------------------------
+Lambda:
+
+console.log('Loading function');
+const AWS = require('aws-sdk');
+
+exports.lambda_handler = (event, context, callback) => {
+    var docClient = new AWS.DynamoDB.DocumentClient();
+    var messageIds = []
+
+    for (var i = 0; i < 10; i++) {
+      console.log("Adding a new item...");
+      var messageId = "MessageNo" + i.toString();
+      messageIds.push(messageId);
+
+      var message = "Hi! This is message no " + i.toString();
+      var params = {
+          TableName: "StepFunctionsSample-TransferDataRecords6fd38b73-0f54-4236-9f35-41811140eadf-DDBTable-2VYGQFO6HHDL",
+          Item:{
+              "MessageId": messageId,
+              "Message": message
+          }
+      };
+      docClient.put(params, function(err, data) {
+          if (err) {
+              console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+          } else {
+              console.log("Added item:", JSON.stringify(data, null, 2));
+          }
+      });
+    };
+    messageIds.push("DONE");
+    callback(null, messageIds);
+};
+
+
+--------------------------------------------------------------------------------
+
+IAM:
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "dynamodb:GetItem"
+            ],
+            "Resource": [
+                "arn:aws:dynamodb:us-east-2:026033341139:table/StepFunctionsSample-TransferDataRecords6fd38b73-0f54-4236-9f35-41811140eadf-DDBTable-2VYGQFO6HHDL"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "sqs:SendMessage"
+            ],
+            "Resource": [
+                "arn:aws:sqs:us-east-2:026033341139:StepFunctionsSample-TransferDataRecords6fd38b73-0f54-4236-SQSQueue-129RDDHVBFWYG"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "lambda:invokeFunction"
+            ],
+            "Resource": [
+                "arn:aws:lambda:us-east-2:026033341139:function:StepFunctionsSample-TransferDataRe-SeedingFunction-FODIQ2DXQ5OQ"
+            ],
+            "Effect": "Allow"
+        }
+    ]
+}
+--------------------------------------------------------------------------------
+
+
+---
+  AWSTemplateFormatVersion: 2010-09-09
+  Description: AWS Step Functions sample project for reading messages from a DynamoDB table and sending them to SQS
+  Resources:
+    DynamoDBToSQSStateMachine:
+      Type: AWS::StepFunctions::StateMachine
+      Properties:
+        RoleArn: !GetAtt [ DynamoDBToSQSExecutionRole, Arn ]
+        DefinitionString:
+          !Sub
+            - |-
+              {
+                "Comment" : "An example of the Amazon States Language for reading messages from a DynamoDB table and sending them to SQS",
+                "StartAt": "Seed the DynamoDB Table",
+                "TimeoutSeconds": 3600,
+                "States": {
+                  "Seed the DynamoDB Table": {
+                    "Type": "Task",
+                    "Resource": "${seedingFunctionArn}",
+                    "ResultPath": "$.List",
+                    "Next": "For Loop Condition"
+                  },
+                  "For Loop Condition": {
+                    "Type": "Choice",
+                    "Choices": [
+                      {
+                        "Not": {
+                          "Variable": "$.List[0]",
+                          "StringEquals": "DONE"
+                        },
+                        "Next": "Read Next Message from DynamoDB"
+                      }
+                    ],
+                    "Default": "Succeed"
+                  },
+                  "Read Next Message from DynamoDB": {
+                    "Type": "Task",
+                    "Resource": "arn:${AWS::Partition}:states:::dynamodb:getItem",
+                    "Parameters": {
+                      "TableName": "${ddbTableName}",
+                      "Key": {
+                        "MessageId": {"S.$": "$.List[0]"}
+                      }
+                    },
+                    "ResultPath": "$.DynamoDB",
+                    "Next": "Send Message to SQS"
+                  },
+                  "Send Message to SQS": {
+                    "Type": "Task",
+                    "Resource": "arn:${AWS::Partition}:states:::sqs:sendMessage",
+                    "Parameters": {
+                      "MessageBody.$": "$.DynamoDB.Item.Message.S",
+                      "QueueUrl": "${sqsQueueUrl}"
+                    },
+                    "ResultPath": "$.SQS",
+                    "Next": "Pop Element from List"
+                  },
+                  "Pop Element from List": {
+                    "Type": "Pass",
+                    "Parameters": {
+                      "List.$": "$.List[1:]"
+                    },
+                    "Next": "For Loop Condition"
+                  },
+                  "Succeed": {
+                    "Type": "Succeed"
+                  }
+                }
+              }
+            - {ddbTableName: !Ref DDBTable, sqsQueueUrl: !Ref SQSQueue, seedingFunctionArn: !GetAtt [ SeedingFunction, Arn ] }
+    DynamoDBToSQSExecutionRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: states.amazonaws.com
+              Action: "sts:AssumeRole"
+        Path: "/"
+        Policies:
+          - PolicyName: DynamoDBAndSQSAccessPolicy
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "dynamodb:GetItem"
+                  Resource:
+                    - !GetAtt DDBTable.Arn
+                - Effect: Allow
+                  Action:
+                    - "sqs:SendMessage"
+                  Resource:
+                    - !GetAtt SQSQueue.Arn
+                - Effect: Allow
+                  Action:
+                    - "lambda:invokeFunction"
+                  Resource:
+                    - !GetAtt [ SeedingFunction, Arn ]
+    DDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        ProvisionedThroughput:
+          ReadCapacityUnits: "10"
+          WriteCapacityUnits: "10"
+        AttributeDefinitions:
+          -
+            AttributeName: "MessageId"
+            AttributeType: "S"
+        KeySchema:
+          -
+            AttributeName: "MessageId"
+            KeyType: "HASH"
+    SQSQueue:
+          Type: AWS::SQS::Queue
+
+    SeedingFunction:
+      Type: "AWS::Lambda::Function"
+      Properties:
+        Handler: "index.lambda_handler"
+        Role: !GetAtt [ SeedingFunctionExecutionRole, Arn ]
+        Code:
+          ZipFile:
+            !Sub
+              - |-
+                console.log('Loading function');
+                const AWS = require('aws-sdk');
+
+                exports.lambda_handler = (event, context, callback) => {
+                    var docClient = new AWS.DynamoDB.DocumentClient();
+                    var messageIds = []
+
+                    for (var i = 0; i < 10; i++) {
+                      console.log("Adding a new item...");
+                      var messageId = "MessageNo" + i.toString();
+                      messageIds.push(messageId);
+
+                      var message = "Hi! This is message no " + i.toString();
+                      var params = {
+                          TableName: "${ddbTableName}",
+                          Item:{
+                              "MessageId": messageId,
+                              "Message": message
+                          }
+                      };
+                      docClient.put(params, function(err, data) {
+                          if (err) {
+                              console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+                          } else {
+                              console.log("Added item:", JSON.stringify(data, null, 2));
+                          }
+                      });
+                    };
+                    messageIds.push("DONE");
+                    callback(null, messageIds);
+                };
+              - {ddbTableName: !Ref DDBTable}
+
+        Runtime: "nodejs12.x"
+        Timeout: "60"
+    SeedingFunctionExecutionRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: lambda.amazonaws.com
+              Action: "sts:AssumeRole"
+        Policies:
+          - PolicyName: SeedingFunctionExecutionPolicy
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "dynamodb:PutItem"
+                  Resource: !GetAtt DDBTable.Arn
+
+  Outputs:
+    StateMachineArn:
+      Value: !Ref DynamoDBToSQSStateMachine
+    ExecutionInput:
+      Description: Sample input to StartExecution.
+      Value:
+        >
+          {}
+
+
+
+
+
+
+
+
+
+
+
+
+
+<didn't work for me>
+
+
+
+https://github.com/leaflevellabs/aws-lambda-sqs-dynamodb
+https://github.com/leaflevellabs/aws-lambda-sqs-dynamodb
+https://github.com/leaflevellabs/aws-lambda-sqs-dynamodb
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+================================================================================
+================================================================================
+
+{
+  "Comment" : "An example of the Amazon States Language for reading messages from a DynamoDB table and sending them to SQS",
+  "StartAt": "Seed the DynamoDB Table",
+  "TimeoutSeconds": 3600,
+  "States": {
+    "Seed the DynamoDB Table": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:123456789012:function:sqsconnector-SeedingFunction-T3U43VYDU5OQ",
+      "ResultPath": "$.List",
+      "Next": "For Loop Condition"
+    },
+    "For Loop Condition": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Not": {
+            "Variable": "$.List[0]",
+            "StringEquals": "DONE"
+          },
+          "Next": "Read Next Message from DynamoDB"
+        }
+      ],
+      "Default": "Succeed"
+    },
+    "Read Next Message from DynamoDB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:getItem",
+      "Parameters": {
+        "TableName": "sqsconnector-DDBTable-1CAFOJWP8QD6I",
+        "Key": {
+          "MessageId": {"S.$": "$.List[0]"}
+        }
+      },
+      "ResultPath": "$.DynamoDB",
+      "Next": "Send Message to SQS"
+    },
+    "Send Message to SQS": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sqs:sendMessage",
+      "Parameters": {
+        "MessageBody.$": "$.DynamoDB.Item.Message.S",
+        "QueueUrl": "https://sqs.us-east-1.amazonaws.com/123456789012/sqsconnector-SQSQueue-QVGQBW134PWK"
+      },
+      "ResultPath": "$.SQS",
+      "Next": "Pop Element from List"
+    },
+    "Pop Element from List": {
+      "Type": "Pass",
+      "Parameters": {
+        "List.$": "$.List[1:]"
+      },
+      "Next": "For Loop Condition"
+    },
+    "Succeed": {
+      "Type": "Succeed"
+    }
+  }
+}
