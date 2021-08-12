@@ -1,0 +1,434 @@
+If you're using Python2 (Check from command: # python --version):
+# sudo apt update
+# sudo apt install python-pip -y
+# pip install boto3
+
+If you're using Python3 (Check from command: # python --version):
+# sudo apt update
+# sudo apt install python3-pip -y
+# pip3 install boto3
+
+https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html
+----------------------------------------------------------------------------------
+
+
+
+
+https://aws.amazon.com/premiumsupport/knowledge-center/ec2-linux-python3-boto3/
+source /home/ubuntu/venv/python3/bin/activate
+source /home/ec2-user/venv/python3/bin/activate
+
+
+------------Create DB instance ---------------
+import boto3
+
+client = boto3.client('rds')
+
+response = client.create_db_instance(
+    DBName='test',
+    DBInstanceIdentifier='aaaa',
+    AllocatedStorage=20,
+    DBInstanceClass='db.t2.micro',
+    Engine='mysql',
+    MasterUsername='root',
+    MasterUserPassword='1d6ac2f01Q',
+    VpcSecurityGroupIds=[
+        'sg-02806463d149b0882',
+    ],
+    AvailabilityZone= 'us-east-1a',
+    DBSubnetGroupName='default-vpc-061eb895519d7589a',
+    Port=3306,
+    MultiAZ=False,
+    EngineVersion='5.7.22',
+    AutoMinorVersionUpgrade=False,
+    PubliclyAccessible=True,
+    EnableIAMDatabaseAuthentication=False,
+    DeletionProtection=False
+)
+----------------create ec2 instnace------------------1
+import boto3
+ec2 = boto3.resource('ec2' , region_name='us-east-2')
+instances = ec2.create_instances(
+     ImageId='ami-0a0d2004b44b9287c',
+     MinCount=1,
+     MaxCount=1,
+     InstanceType='t2.micro',
+     KeyName='ohiokeynew'
+ )
+ -------------------------------------------------
+import boto3
+ssm = boto3.client('ssm')
+testCommand = ssm.send_command( InstanceIds=[ 'mi-0f02a007835aa4dc0', 'i-0eaca6a1394c95d5b' ],
+DocumentName='AWS-RunShellScript',
+Comment='boto3', Parameters={ "commands":[ "systemctl stop httpd", "service apache2 stop" ]  } )
+                                           systemctl status httpd   service apache2 status
+import boto3
+s3 = boto3.resource('s3')
+s3.meta.client.download_file('for-code-deploy', 'combantrin.jpg', './combantrin.jpg')
+--------------------------------------------------------------------------------------------------
+                            Print all buckets / All object in specific bucket
+import boto3
+s3 = boto3.resource('s3')
+bucket_list = [bucket.name for bucket in s3.buckets.all()]
+print (bucket_list)
+
+import boto3
+s3 = boto3.resource('s3')
+my_bucket = s3.Bucket('for-code-deploy')
+for file in my_bucket.objects.all():
+    print(file.key)
+
+
+--------------------------------------------------------------------------------------------------
+import boto3
+ssm = boto3.client('ssm')
+testCommand = ssm.send_command( InstanceIds=[ 'mi-00af7662a69db424b' ],
+DocumentName='AWS-RunShellScript',
+Comment='boto3', Parameters={ "commands":[ "service apache2 start" ]  } )
+--------------------------------------------------------------------------------------------------
+publish(**kwargs)
+https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
+
+import boto3
+client = boto3.client('sns')
+response = client.publish(
+    PhoneNumber='+642108324765',
+    Subject='Hello from boto3',
+    Message='hello',
+    MessageStructure='Identical payload for all delivery protocols'
+)
+-----------------------------Cretae vpc,route,subnet...-----------------------------------------------------
+import boto3
+ec2 = boto3.resource('ec2', region_name='us-east-2')
+vpc = ec2.create_vpc(CidrBlock='172.16.0.0/16')
+vpc.create_tags(Tags=[{"Key": "Name", "Value": "my_vpc"}])
+vpc.wait_until_available()
+ec2Client = boto3.client('ec2')
+ec2Client.modify_vpc_attribute( VpcId = vpc.id , EnableDnsSupport = { 'Value': True } )
+ec2Client.modify_vpc_attribute( VpcId = vpc.id , EnableDnsHostnames = { 'Value': True } )
+internetgateway = ec2.create_internet_gateway()
+vpc.attach_internet_gateway(InternetGatewayId=internetgateway.id)
+routetable = vpc.create_route_table()
+route = routetable.create_route(DestinationCidrBlock='0.0.0.0/0', GatewayId=internetgateway.id)
+subnet = ec2.create_subnet(CidrBlock='172.16.1.0/24', VpcId=vpc.id)
+routetable.associate_with_subnet(SubnetId=subnet.id)
+securitygroup = ec2.create_security_group(GroupName='SSH-ONLY', Description='only allow SSH traffic', VpcId=vpc.id)
+securitygroup.authorize_ingress(CidrIp='0.0.0.0/0', IpProtocol='tcp', FromPort=22, ToPort=22)
+
+# https://blog.ipswitch.com/how-to-create-and-configure-an-aws-vpc-with-python
+
+
+                            #Email
+import boto3
+client = boto3.client('sns')
+response = client.publish(
+    TopicArn='arn:aws:sns:us-east-1:385809983358:email',
+    Subject='Hello from Lambda-Boto3',
+    Message='hello',
+    MessageStructure='Identical payload for all delivery protocols'
+)
+
+
+
+response = client.publish(
+    TopicArn='string',
+    TargetArn='string',
+    PhoneNumber='string',
+    Message='string',
+    Subject='string',
+    MessageStructure='string',
+    MessageAttributes={
+        'string': {
+            'DataType': 'string',
+            'StringValue': 'string',
+            'BinaryValue': b'bytes'
+        }
+    }
+)
+-------------------------------------------------------------------------------
+import boto3
+
+client = boto3.client('rds')
+response = client.create_db_snapshot(
+    DBSnapshotIdentifier='blabla1',            #DB snapshoot
+    DBInstanceIdentifier='blabla',
+    Tags=[
+        {
+            'Key': 'workloadtype',
+            'Value': 'other'
+        },
+    ]
+)
+
+---------------------------Stop all instances--------------------------------------------------
+import boto3
+
+def instances_find(name, value):
+    '''
+    Finds instance id's based on tags.
+    Returns a list of instances found.
+    '''
+    list_instances = []
+    # filter based on tags
+    filters =[
+        {
+        'Name': name,
+        'Values': [
+            value,
+            ]
+        },
+    ]
+    instances = ec2_resource.instances.filter(Filters=filters)
+    for instance in instances:
+        # for each instance, append to list
+        list_instances.append(instance.id)
+    return list_instances
+
+def instances_stop(list):
+    '''
+    Stops instances defined in the list.
+    '''
+    ec2_client.stop_instances(InstanceIds=list)
+
+# enter tag name and value
+tag_name = 'tag:Name'
+tag_value = 'Bamboo'
+
+ec2_resource = boto3.resource('ec2')
+ec2_client = boto3.client('ec2')
+
+# find instances
+ec2_list = instances_find(tag_name, tag_value)
+# stop instances
+ec2_stop = instances_stop(ec2_list)
+print('stopped instances: ' + str(ec2_list))
+
+---------------------------Start all instances--------------------------------------------------
+
+import boto3
+
+def instances_find(name, value):
+    '''
+    Finds instance id's based on tags.
+    Returns a list of instances found.
+    '''
+    list_instances = []
+    # filter based on tags
+    filters =[
+        {
+        'Name': name,
+        'Values': [
+            value,
+            ]
+        },
+    ]
+    instances = ec2_resource.instances.filter(Filters=filters)
+    for instance in instances:
+        # for each instance, append to list
+        list_instances.append(instance.id)
+    return list_instances
+
+def instances_start(list):
+    '''
+    Starts instances defined in the list.
+    '''
+    ec2_client.start_instances(InstanceIds=list)
+
+# enter tag name and value
+tag_name = 'tag:environment'
+tag_value = 'dev'
+
+ec2_resource = boto3.resource('ec2')
+ec2_client = boto3.client('ec2')
+
+# find instances
+ec2_list = instances_find(tag_name, tag_value)
+# start instances
+ec2_stop = instances_start(ec2_list)
+print('started instances: ' + str(ec2_list))
+
+
+-------------------------Delete-unused-security-groups.py-----------------------------------------------
+import boto3
+
+ec2 = boto3.resource('ec2')
+ec2 = boto3.client('ec2')
+
+
+response = ec2.describe_security_groups()
+
+
+for i in response["SecurityGroups"]:
+    id= i["GroupId"]
+    print ( i["GroupId"])
+    try:
+        ec2.delete_security_group(GroupId=id)
+    except:
+        print ("dependent")
+
+
+-----------------------Connect to mysql + Create table/s------------------------------------------------
+pip install mysql-connector  (installed on the server)
+
+import mysql.connector
+
+mydb = mysql.connector.connect(
+  host="dd1uld8v0sot8ws.ctqkvcwhy2jz.us-east-2.rds.amazonaws.com",
+  user="Admin",
+  passwd="1d6ac2f01Q",
+  database="wordpress"
+)
+
+mycursor = mydb.cursor()
+
+mycursor.execute("CREATE TABLE customers1 (name VARCHAR(255), address VARCHAR(255))")
+mycursor.execute("CREATE TABLE customers2 (name VARCHAR(255), address VARCHAR(255))")
+-----------------------------------------------------------------------
+
+******* create resources vpc, route, subnet, security-Group..............
+
+
+import boto3
+
+# http://boto3.readthedocs.io/en/latest/reference/services/ec2.html#service-resource
+
+
+ec2 = boto3.resource('ec2', aws_access_key_id='AKIAVTVARE57F5GMDOO2',
+                     aws_secret_access_key='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',
+                     region_name='us-east-1')
+
+   route_table = vpc.create_route_table()
+   route = route_table.create_route(
+       DestinationCidrBlock='0.0.0.0/0',
+       GatewayId=ig.id
+   )
+
+
+import boto3
+ec2 = boto3.resource('ec2', region_name='us-east-2')
+vpc = ec2.create_vpc(CidrBlock='172.16.0.0/16')
+vpc.create_tags(Tags=[{"Key": "Name", "Value": "my_vpc"}])
+vpc.wait_until_available()
+ec2Client = boto3.client('ec2')
+ec2Client.modify_vpc_attribute( VpcId = vpc.id , EnableDnsSupport = { 'Value': True } )
+ec2Client.modify_vpc_attribute( VpcId = vpc.id , EnableDnsHostnames = { 'Value': True } )
+internetgateway = ec2.create_internet_gateway()
+vpc.attach_internet_gateway(InternetGatewayId=internetgateway.id)
+routetable = vpc.create_route_table()
+route = routetable.create_route(DestinationCidrBlock='0.0.0.0/0', GatewayId=internetgateway.id)
+subnet = ec2.create_subnet(CidrBlock='172.16.1.0/24', VpcId=vpc.id)
+routetable.associate_with_subnet(SubnetId=subnet.id)
+securitygroup = ec2.create_security_group(GroupName='SSH-ONLY', Description='only allow SSH traffic', VpcId=vpc.id)
+securitygroup.authorize_ingress(CidrIp='0.0.0.0/0', IpProtocol='tcp', FromPort=22, ToPort=22)
+
+https://blog.ipswitch.com/how-to-create-and-configure-an-aws-vpc-with-python
+
+
+
+
+import boto3
+   def get_main_route_table(self):
+       """Return the main (default) route table for VPC."""
+       main_route_table = []
+       for route_table in list(self.route_tables.all()):
+           for association in list(route_table.associations.all()):
+               if association.main == True:
+                   main_route_table.append(route_table)
+       if len(main_route_table) != 1:
+           raise Exception('cannot get main route table! {}'.format(main_route_table))
+       return main_route_table[0]
+
+
+
+source /home/ubuntu/venv/python3/bin/activate
+
+
+----------------------------Route53---------------------------------------------
+
+client = boto3.client('route53')
+
+
+response = client.create_hosted_zone(
+    Name='abc',
+    VPC={
+        'VPCRegion': 'us-east-1',
+        'VPCId': 'vpc-969d41ec'
+    },
+    CallerReference='uniquestring',
+    HostedZoneConfig={
+        'Comment': 'blahblahblah',
+        'PrivateZone': True
+    }
+)
+--------------------------DynamoDB-----------------------
+import boto3
+
+client = boto3.client('dynamodb')
+
+response = client.create_table(
+    AttributeDefinitions=[
+        {
+            'AttributeName': 'ArtistId',
+            'AttributeType': 'S'
+        },
+    ],
+    TableName='string',
+    KeySchema=[
+        {
+            'AttributeName': 'ArtistId',
+            'KeyType': 'HASH'
+        },
+    ],
+
+    ProvisionedThroughput={
+        'ReadCapacityUnits': 5,
+        'WriteCapacityUnits': 5
+    }
+)
+
+IMPORTANT
+https://sysadmins.co.za/interfacing-amazon-dynamodb-with-python-using-boto3/
+https://sysadmins.co.za/interfacing-amazon-dynamodb-with-python-using-boto3/
+-----------------------------------------------------------------
+import boto3
+
+# Get the service resource.
+dynamodb = boto3.resource('dynamodb')
+
+# Instantiate a table resource object without actually
+# creating a DynamoDB table. Note that the attributes of this table
+# are lazy-loaded: a request is not made nor are the attribute
+# values populated until the attributes
+# on the table resource are accessed or its load() method is called.
+table = dynamodb.Table('myDynamoTable')
+
+# Print out some data about the table.
+# This will cause a request to be made to DynamoDB and its attribute
+# values will be set based on the response.
+print(table.creation_date_time)
+-----------------------------------------------------------------
+
+
+https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-install-managed-linux.html
+
+Install SSMAgent On Centos Google
+    1  mkdir /tmp/ssm
+    2  cd /tmp/ssm
+    3  cd /
+    4  curl https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm -o /tmp/ssm/amazon-ssm-agent.rpm
+    5  sudo yum install -y /tmp/ssm/amazon-ssm-agent.rpm
+    6  sudo systemctl stop amazon-ssm-agent
+    7  sudo amazon-ssm-agent -register -code AFCKyYWUUaf7E59hrB2b -id cddec803-e61d-45b1-8350-c08bf96e4b9f -region us-east-1
+    8  sudo systemctl start amazon-ssm-agent
+    9  sudo systemctl status amazon-ssm-agent
+
+Install SSMAgent on ec2-ubuntu
+   sudo snap install amazon-ssm-agent --classic
+   sudo systemctl start snap.amazon-ssm-agent.amazon-ssm-agent.service
+   sudo systemctl status snap.amazon-ssm-agent.amazon-ssm-agent.service
+
+------------------------------------------------
+    Create Maintenance window
+    https://www.youtube.com/watch?v=aR02m1Xsz1E
+    https://www.youtube.com/watch?v=1r3YU2KoK5s
+------------------------------------------------
