@@ -1,0 +1,48 @@
+Migrate Docker container Mysql to RDS using Workbench 8.0
+
+/> docker-compose up -d
+
+version: '3.0'
+services:
+ db:
+   image: mysql
+   volumes:
+       - "./.data/db:/var/lib/mysql"
+   environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_DATABASE: mydb
+       MYSQL_USER: user
+       MYSQL_PASSWORD: pass
+   ports:
+     - 3306:3306
+
+
+Connect as a root and run the following commands inside the mysql container: 
+#create user 'user'@'%' identified by 'pass';
+grant all privileges on *.* to 'user'@'%' with grant option;
+flush privileges;
+https://stackoverflow.com/questions/33827342/how-to-connect-mysql-workbench-to-running-mysql-inside-docker
+
+
+Create a Workbench connection for the container, ip should be the public ip where docker is running and port 3306, user and password pass
+
+Create a table inside the container schema and add data      (the engine I worked with is innoDB)
+https://www.youtube.com/watch?v=pZKrznZymMg
+
+server => data export => select the schemas => choose the saving path => start export
+
+Then: 
+
+Create an rds instance mysql version 8.0.23   (user admin, pass 12345678)  with public access
+
+Connect to your RDS instance with workbench   (create a new connection)
+https://www.youtube.com/watch?v=7st8lYP_mJs
+
+Create a schema called mydb     (like appears in the mysql docker container) 
+
+server => data import from self-contained file:  <choose the file you've saved earlier
+choose default target schema: mydb  => start import 
+
+
+
+https://console.aws.amazon.com/support/home#/case/?displayId=8718600011&language=en
