@@ -1,0 +1,40 @@
+1.
+-------------------------------------------------------------------
+*****In what cases should I use both of the, password and IAM?*****
+-------------------------------------------------------------------
+
+We recommend the following when using IAM:
+
+>Use IAM database authentication as a mechanism for temporary, personal access to databases.
+
+>Use IAM database authentication only for workloads that can be easily retried. Like a quick access by an application to run a single query or transaction.
+
+>Use IAM database authentication when your application requires fewer than 200 new IAM database authentication connections per second.
+
+The database engines that work with Amazon RDS don't impose any limits on authentication attempts per second. However, when you use IAM database authentication, your application must generate an authentication token. Your application then uses that token to connect to the DB instance. If you exceed the limit of maximum new connections per second, then the extra overhead of IAM database authentication can cause connection throttling. The extra overhead can cause even existing connections to drop.
+
+
+
+2.
+-------------------------------------------
+*****Create IAM user and policy*****
+-------------------------------------------
+To allow an IAM user or role to connect to your DB instance, you must create an IAM policy. After that, you attach the policy to an IAM user or role. 
+
+The following example policy allows an IAM user to connect to a DB instance using IAM database authentication. [4]
+
+
+{
+   "Version": "2012-10-17",
+   "Statement": [
+      {
+         "Effect": "Allow",
+         "Action": [
+             "rds-db:connect"
+         ],
+         "Resource": [
+             "arn:aws:rds-db:us-east-2:1234567890:dbuser:db-ABCDEFGHIJKL01234/db_user"
+         ]
+      }
+   ]
+}
