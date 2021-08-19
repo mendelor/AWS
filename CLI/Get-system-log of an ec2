@@ -1,0 +1,3 @@
+aws ec2 get-console-output --instance-id i-0d19179354ffad
+
+** exacty like Get system logs from the EC2 aws console
