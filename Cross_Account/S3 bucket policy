@@ -20,7 +20,32 @@
     ]
 }
 
+** If another user from the account 47*****78 has an IAM role that allow him access to this bucket, he would be able to retrieve data from the bucket. 
 
 /> aws s3 cp <file> s3://mybu***                               (Don't forget to refresh the bucket page)
 
 https://aws.amazon.com/premiumsupport/knowledge-center/s3-cross-account-upload-access/
+
+
+
+
+Waiting for a reply AWS case: 3558571
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DelegateS3Access",
+            "Effect": "Deny",
+            "NotPrincipal": { "AWS": [
+                "arn:aws:iam::47********78:user/John",
+                "arn:aws:iam::47********78:user/Alice",
+            ]},
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::mybu***",
+                "arn:aws:s3:::mybu***/*"
+            ]
+        }
+    ]
+}
