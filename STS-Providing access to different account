@@ -1,0 +1,17 @@
+Main account (this provide access to account2 to your main one)
+1. create role => another AWS account => Account ID => Require external ID  (e.g 1111)
+2. Attach S3 read access policy 
+
+
+Account2
+3. Run the following on the EC2 with the (Account ID) you've configured in step 1
+/> aws sts assume-role --role-arn arn:aws:iam::3174139***31:role/4735******8 --role-session-name demo --external-id 1111       *4735******8 - given_role_name
+/> export AWS_ACCESS_KEY_ID=ASIAUTZ2ZEGXDZKSN38
+/> export AWS_SECRET_ACCESS_KEY=rqfLbuuMu3RmwZcA41ONFZdIAdwTJp1mZeA+/mdu
+/> export AWS_SESSION_TOKEN=IQoJb3JpZ2luX2VjEJT////////EaCXVzLWVhc3QtMiJHMEUCIQC71xJGXV73s1P9KaXlJrLHwSpvcdUVmYxsZhrJFlzW7AIgHmxG9qqyEHJOBFP1urrjahW6ut53Pi45zY8rwMxKfDwqmgIIzf//////////ARAAGgwzMTc0MTM5OTA4MzEiDGVpIOs42N7rjskvVyruAUGEjqxvRguxgectcfRflvAl6eaIUkEdi86aLcsMw/E7WpqeswyfuHgI70i5bXSihkcebVtIdm5ZmwK3vctuPKG5+XS5hWcrhIdbHvCaayGqiR5Z8TjVOclPAW1hSrxn+1dL1pklzdJEQCBASL+TfbGGijDqhe+zC2TQYKsrkVb0uGZ5+yuhw2ZL3aWuF1V2ffeua8s9A6BL0VR5f2hh4i+n7s5uepH12ti8AOJk6YtF/UrFZK47NK1mmsjwuu0n40dctg2jHCdIcqE6luwloteiqNwjAJaF1QDIyvD0X1/BjeeFjlKROTMLO9dSe5Yw9cy2iQY6nQEOYZj9BfPuS7l2djAjd1Fb9BTfCOHUkRbe/+3ueNxlPoXS1392S7spwS9Yy3L44VjgexwY7Jzm2U9cVtZ7GCUBzNBUGKByM0u9U8FsCO309/aZwtvD0kMyXtP1skH+RD3NSXT3TlnBfT+jN51J68t1B2FRMo+EuAwLS40eCX0ZDSK6ZdZrwHVDTPjH54xUHazGOXdv6/4DIplBnZxR
+/> aws sts get-caller-identity
+/> aws s3 ls
+
+You'll get a list of all S3 buckets of my main account 
+
+https://www.youtube.com/watch?v=DLVlW3dOJww
