@@ -58,7 +58,9 @@ I created the rds as a target
 the source was a docker container 
 
 
-the user I configured in the source was user, pass:pass
+Name: 18.112.172.***
+User: user
+Pass: pass
 
 created a replication instance t2.micro 
 ** don't forget to test the connection before (source and target) 
