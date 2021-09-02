@@ -46,3 +46,43 @@ choose default target schema: mydb  => start import
 
 
 https://console.aws.amazon.com/support/home#/case/?displayId=8718600011&language=en
+
+
+
+
+----------------------------------------------------Worked with DMS as well-------------------------------------------------
+
+I had an RDS instance with mysql5.7
+
+I created the rds as a target 
+the source was a docker container 
+
+
+the user I configured in the source was user, pass:pass
+
+created a replication instance t2.micro 
+** don't forget to test the connection before (source and target) 
+
+run the migration (see the following link): 
+https://servian.udemy.com/course/oracle-database-migration-methods-on-prem-to-oracle-cloud/learn/lecture/17484998#overview
+
+
+
+/> docker network create --driver=bridge --subnet=192.168.0.0/16 network1
+
+version: '3.1'
+services:
+ db:
+   image: mysql:5.7
+   environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_DATABASE: mydb
+       MYSQL_USER: user
+       MYSQL_PASSWORD: pass
+   ports:
+     - 3306:3306
+
+networks:
+ default:
+   external:
+     name: network1
