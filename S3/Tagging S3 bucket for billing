@@ -1,0 +1,13 @@
+
+{
+"TagSet": [
+        {
+          "Key": "Company",
+          "Value": "private"
+
+     }
+   ]
+}
+
+
+/> aws s3api put-bucket-tagging --bucket mybu --tagging file://tagging.json
