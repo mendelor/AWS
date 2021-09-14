@@ -1,0 +1,1 @@
+aws configure set default.s3.use.accelerate_endpoint true 
