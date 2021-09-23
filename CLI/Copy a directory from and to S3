@@ -1,8 +1,31 @@
 
-aws s3 cp --recursive mysql s3://for-code-deployment1/mysql
+
+mkdir aaa && cd aaa 
+echo "aa" > aa.txt
+echo "bb" > bb.txt
+
+
+/> vim /root/.aws/config
+
+[profile development]
+aws_access_key_id=foo
+aws_secret_access_key=bar
+s3 =
+  max_concurrent_requests = 20
+  max_queue_size = 10000
+  multipart_threshold = 64MB
+  multipart_chunksize = 16MB
+  max_bandwidth = 50MB/s
+  use_accelerate_endpoint = true
+  addressing_style = path
+  
+  /> aws s3 cp --recursive aaa s3://mybuck/aaa
+  
+  
+  
+  
+aws s3 cp --recursive mysql s3://for-code-deployment1/mysql   --debug
 aws s3 cp --recursive s3://for-code-deployment1/mysql mysql
 
 
 
-Check this out with AWS support!
-'str' object has no attribute 'get'
