@@ -12,11 +12,24 @@ https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html
 ----------------------------------------------------------------------------------
 
 
-
-
 https://aws.amazon.com/premiumsupport/knowledge-center/ec2-linux-python3-boto3/
 source /home/ubuntu/venv/python3/bin/activate
 source /home/ec2-user/venv/python3/bin/activate
+
+
+------------Create IAM group and users ---------------
+
+import boto3
+iam = boto3.client('iam')
+list = ["John@micro.com","sara@micro.com"]
+
+response = iam.create_group(
+    GroupName='Hackathon3'
+)
+for user in list:
+    response = iam.create_user( UserName=user )
+
+
 
 
 ------------Create DB instance ---------------
