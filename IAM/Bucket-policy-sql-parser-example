@@ -1,0 +1,49 @@
+ {
+     "Version": "2012-10-17",
+     "Statement": [
+         {
+             "Sid": "AllowSESPuts",
+             "Effect": "Deny",
+             "Principal": "*",
+             "Action": "s3:PutObject",
+             "Resource": [
+                 "arn:aws:s3:::sql-email",
+                 "arn:aws:s3:::sql-email/*"
+             ],
+             "Condition": {
+                 "StringNotEquals": {
+                     "AWS:SourceArn": "arn:aws:ses:us-east-1:88XXXXXXXXXX:receipt-rule-set/Sql-email:receipt-rule/Sql-email1",
+                     "AWS:SourceAccount": "88XXXXXXXXXX"
+                 }
+             }
+         },
+         {
+             "Sid": "AllowSESPuts",
+             "Effect": "Allow",
+             "Principal": {
+                 "Service": "ses.amazonaws.com"
+             },
+             "Action": "s3:PutObject",
+             "Resource": "arn:aws:s3:::sql-email/*",
+             "Condition": {
+                 "StringEquals": {                           
+                     "AWS:SourceArn": "arn:aws:ses:us-east-1:88XXXXXXXXXX:receipt-rule-set/Sql-email:receipt-rule/Sql-email1",
+                     "AWS:SourceAccount": "88XXXXXXXXXX"
+                 }
+             }
+         },
+         {
+             "Effect": "Allow",
+             "Principal": {
+                 "Service": "lambda.amazonaws.com"
+             },
+             "Action": "s3:GetObject",
+             "Resource": "arn:aws:s3:::sql-email/*",
+             "Condition": {
+                 "StringEquals": {
+                     "aws:SourceArn": "arn:aws:lambda:us-east-1:88XXXXXXXXXX:function:sql-email"
+                 }
+             }
+         }
+     ]
+ }
