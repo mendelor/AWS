@@ -1,0 +1,20 @@
+{
+    "Version": "2012-10-17",
+    "Id": "PutObjectPolicy",
+    "Statement": [
+        {
+            "Sid": "DenyUnEncryptedObjectUploads",
+            "Effect": "Deny",
+            "Principal": "*",
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::kms-testing/*",
+            "Condition": {
+                "StringNotEquals": {
+                    "s3:x-amz-server-side-encryption-aws-kms-key-id": "arn:aws:kms:us-east-1:8842:key/e59941f4-XXXX-XXXX-XXXX-8a9bf2bd1082"
+                }
+            }
+        }
+    ]
+}
+
+/> aws s3 cp test.txt s3://kms-testing --sse aws:kms --sse-kms-key-id e59941f4--XXXX-XXXXX
