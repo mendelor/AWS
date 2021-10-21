@@ -10,3 +10,6 @@ sudo amazon-ssm-agent -register -code TR9NoCDSDLTQEgIna+l3 -id f787cd1d-7450-46b
 
 sudo snap install amazon-ssm-agent --classic
 sudo systemctl status snap.amazon-ssm-agent.amazon-ssm-agent.service
+
+A good link:
+https://aws.amazon.com/premiumsupport/knowledge-center/systems-manager-ec2-instance-not-appear/
