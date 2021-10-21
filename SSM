@@ -1,0 +1,12 @@
+-------------- Hybrid Servers ---------------
+
+https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-managed-instance-activation.html?shortFooter=true
+
+**https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-install-managed-linux.html
+
+sudo amazon-ssm-agent -register -code TR9NoCDSDLTQEgIna+l3 -id f787cd1d-7450-46b8-861a-d43d4680790d -region us-east-1
+--------------------------------------------
+
+
+sudo snap install amazon-ssm-agent --classic
+sudo systemctl status snap.amazon-ssm-agent.amazon-ssm-agent.service
