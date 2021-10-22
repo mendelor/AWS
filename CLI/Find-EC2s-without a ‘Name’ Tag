@@ -1,0 +1,8 @@
+/> aws ec2 describe-instances  --output text  --query 'Reservations[].Instances[].[Tags[?Key==`Name`].Value|[0],InstanceId]'
+** None means -> no tags)
+
+
+
+
+A very useful article about tagging:
+https://onica.com/blog/devops/using-aws-cli-to-find-untagged-instances/
