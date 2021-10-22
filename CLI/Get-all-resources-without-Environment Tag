@@ -1,0 +1,4 @@
+/> aws resourcegroupstaggingapi get-resources --tags-per-page 100 | jq '.ResourceTagMappingList[] | select(contains({Tags: [{Key: "environment"} ]}) | not)'
+
+
+https://stackoverflow.com/questions/34595579/can-i-programmatically-find-all-untagged-resources
