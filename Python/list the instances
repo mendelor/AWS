@@ -1,0 +1,16 @@
+import boto3
+  
+#ec2 = boto3.resource('ec2')
+ec2_client = boto3.client('ec2')
+response = ec2_client.describe_instances()
+instances = response['Reservations']
+for instance in instances:
+    print(instance['Instances'][0]['InstanceId'])
+
+
+#for i in ec2.instances.all():
+#    if i.tags:
+#        for idx, tag in enumerate(i.tags):
+#            if tag['Key'] == 'Name':
+#                instancename = tag['Value']
+#                print(idx, instancename)
