@@ -13,3 +13,38 @@ sudo systemctl status snap.amazon-ssm-agent.amazon-ssm-agent.service
 
 A good link:
 https://aws.amazon.com/premiumsupport/knowledge-center/systems-manager-ec2-instance-not-appear/
+
+
+SSM agent for userdata: 
+https://aws.amazon.com/premiumsupport/knowledge-center/install-ssm-agent-ec2-linux/
+
+
+---------------------------------Python script that checks which instances managed through SSM----------------------------- 
+
+import boto3
+ 
+ec2_instances = [i['InstanceId'] for r in boto3.client('ec2').describe_instances()['Reservations'] for i in r['Instances']]
+ssm_instances = [i['InstanceId'] for i in boto3.client('ssm').describe_instance_information()['InstanceInformationList']]
+
+print('EC2 instances:')
+
+for count, s in enumerate(ec2_instances, 1):
+    print("{0}. {1}".format(count, s))
+#print(ec2_instances)
+
+print('SSM managed instances:')
+for count, t in enumerate(ssm_instances, 1):
+#for t in ssm_instances:
+    print("{0}. {1}".format(count, t))
+#print(ssm_instances)
+
+
+print('Unmanaged EC2 instances:')
+print(set(ec2_instances) - set(ssm_instances))
+
+
+
+- --  - - - - - - - - - - - - - -- - - - - - - -- - - -- Good link for the tutorial 
+https://cloudaffaire.com/how-to-add-an-ec2-instance-to-aws-system-manager-ssm/
+https://cloudaffaire.com/how-to-add-an-ec2-instance-to-aws-system-manager-ssm/
+
