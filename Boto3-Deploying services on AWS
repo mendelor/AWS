@@ -3,6 +3,8 @@ If you're using Python2 (Check from command: # python --version):
 # sudo apt install python-pip -y
 # pip install boto3
 
+--Check if boto3 installed->   /> pip show boto3
+
 If you're using Python3 (Check from command: # python --version):
 # sudo apt update
 # sudo apt install python3-pip -y
