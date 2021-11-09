@@ -19,6 +19,79 @@
                         "severity2",
                         "severity3",
                         "severity4"
+                    ],
+                    "aws:RequestTag/airnz:sec:domain": [
+                        "Mediation",
+                        "Medium",
+                        "High",
+                        "Restricted",
+                        "Aircraft",
+                        "Management",
+                        "PCI",
+                        "Sandpit"
+                    ],
+                    "aws:RequestTag/airnz:sec:classification": [
+                        "Public",
+                        "Internal",
+                        "Sensitive",
+                        "Restricted"
+                    ],
+                    "aws:RequestTag/airnz:tech:environment": [
+                        "Dev",
+                        "Test",
+                        "Qual",
+                        "Prod"
+                    ],
+                    "aws:RequestTag/airnz:tech:type:pet": [
+                        "Yes",
+                        "No"
+                    ],
+                    "aws:RequestTag/airnz:ops:managedby": [
+                        "Carina",
+                        "Platforms",
+                        "Support",
+                        "Crew",
+                        "Mobile",
+                        "Support",
+                        "EIT",
+                        "DBA",
+                        "Support",
+                        "NTT",
+                        "Infrastructure"
+                    ]
+                },
+                "StringNotLike": {
+                    "aws:RequestTag/airnz:bus:product": "?*",
+                    "aws:RequestTag/airnz:bus:owner": "?*"
+                }
+            }
+        }
+    ]
+}
+
+
+------------------------
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "statement1",
+            "Effect": "Deny",
+            "Action": [
+                "ec2:RunInstances"
+            ],
+            "Resource": [
+                "arn:aws:ec2:*:*:instance/*"
+            ],
+            "Condition": {
+                "StringNotEquals": {
+                    "aws:RequestTag/airnz:bus:severity": [
+                        "severity1",
+                        "severity2",
+                        "severity3",
+                        "severity4"
                     ]
                 },
                 "StringNotLike": {
