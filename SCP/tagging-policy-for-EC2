@@ -70,6 +70,10 @@
 }
 
 
+solution:
+Please note that there is no restriction/limit on the number of lines you use to create or form an IAM policy.It depends upon the number of characters you have used to create the policy.Currently, the maximum number of characters in an IAM managed policy is set to 6,144, and can not be increased.
+https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html#reference_iam-quotas-entity-length
+
 ------------------------
 
 
