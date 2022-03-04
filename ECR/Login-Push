@@ -2,6 +2,10 @@ aws ecr get-login-password | docker login --username AWS --password-stdin <accou
 docker tag <image_name> <account_number>.dkr.ecr.us-east-2.amazonaws.com/hello-world:phtml
 docker push <account_number>.dkr.ecr.us-east-2.amazonaws.com/hello-world:phtml
 
+Anz:
+aws ecr get-login-password --region ap-southeast-1 --profile ____-non-prod | docker login --username AWS --password-stdin 425.dkr.ecr.ap-southeast-1.amazonaws.com/v2/
+
+
 
 Why there's a difference between the size of the image: 
 Starting with Docker version 1.9, the Docker client compresses image layers before pushing them to a V2 Docker registry.
