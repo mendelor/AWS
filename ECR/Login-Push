@@ -3,8 +3,8 @@ docker tag <image_name> <account_number>.dkr.ecr.us-east-2.amazonaws.com/hello-w
 docker push <account_number>.dkr.ecr.us-east-2.amazonaws.com/hello-world:phtml
 
 Anz:
-aws ecr get-login-password --region ap-southeast-1 --profile ____-non-prod | docker login --username AWS --password-stdin 425.dkr.ecr.ap-southeast-1.amazonaws.com/v2/
-
+aws ecr get-login-password --region ap-southeast-2 --profile ____-non-prod | docker login --username AWS --password-stdin 425.dkr.ecr.ap-southeast-2.amazonaws.com/v2/
+aws ecr get-login-password --region ap-southeast-2 --profile ____-non-prod | podman login --username AWS --password-stdin 425.dkr.ecr.ap-southeast-2.amazonaws.com/v2/
 
 
 Why there's a difference between the size of the image: 
