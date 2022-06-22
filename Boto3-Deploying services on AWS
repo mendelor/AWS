@@ -10,6 +10,9 @@ If you're using Python3 (Check from command: # python --version):
 # sudo apt install python3-pip -y
 # pip3 install boto3
 
+
+/> python boto.py
+
 https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html
 ----------------------------------------------------------------------------------
 
